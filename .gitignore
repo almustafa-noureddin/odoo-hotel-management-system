@@ -205,3 +205,77 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+
+
+# ==========================
+# Odoo Project Git Ignore
+# ==========================
+
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# Odoo logs
+*.log
+*.log.*
+odoo.log
+
+# Odoo session files
+*.session
+sessions/
+
+# Odoo filestore (generated at runtime, should not be versioned)
+filestore/
+
+# Odoo addons auto-generated assets (compiled assets, translations, etc.)
+addons/*/static/lib/
+addons/*/static/build/
+#addons/*/i18n/*.pot
+addons/*/i18n/*.mo
+
+# Pip installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Build / dist artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+*.egg
+
+# Odoo DB dumps
+*.sql
+*.sql.gz
+*.dump
+
+# Environment / secrets
+*.env
+.env
+*.env.*
+config/
+*.cfg
+*.conf
+local_config.py
+
+# Jupyter / notebooks
+.ipynb_checkpoints
+
+# IDE / Editor stuff
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# System files
+.DS_Store
+Thumbs.db
