@@ -5,7 +5,7 @@
     'category': 'Hotel',
     'author': 'Almustafa',
     'website': '',
-    'license': '',
+    'license': 'LGPL-3.0',
 
     'depends': [
         'base',
