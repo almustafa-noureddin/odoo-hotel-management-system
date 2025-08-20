@@ -8,7 +8,13 @@ class HotelRoomType(models.Model):
     name = fields.Char(string="Room Type (Deluxe, Suite, etc.)",required=True, index=True)
     description = fields.Char(string="Room type description")
     capacity = fields.Integer(string="Capacity",default=1)
-    default_price = fields.Monetary(string="Base price")
+    default_price = fields.Monetary(string="Base price", currency_field='currency_id')
+
+    currency_id = fields.Many2one(
+        'res.currency',
+        required=True,
+        default=lambda self: self.env.company.currency_id.id,
+    )
 
 class HotelRoomAmenity(models.Model):
     _name = 'hotel.room.amenity'
@@ -39,7 +45,7 @@ class HotelRoom (models.Model):
             ('dirty','Dirty'), 
             ('maintenance','Maintenance')]
     )
-    price= fields.Monetary(string='Price')
+    price= fields.Monetary(string='Price', currency_field='currency_id')
     
     amenities_ids = fields.Many2many(
         string='Amenities',
@@ -48,5 +54,12 @@ class HotelRoom (models.Model):
         column1='room_id',
         column2='amenity_id',
     )
+
+    currency_id = fields.Many2one(
+        'res.currency',
+        required=True,
+        default=lambda self: self.env.company.currency_id.id,
+    )
+
     
  

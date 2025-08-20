@@ -9,14 +9,19 @@ class HotelEventAmenity(models.Model):
     name = fields.Char(required=True, index=True)
     description = fields.Text()
 
-class HetelEventHallType:
+class HotelEventHallType(models.Model):
     _name="hotel.event.hall.type"
     _description="Event / Banquet Hall Type"
     _order="name"
 
-    name=fields.Char(string="",required=True, index=True)
+    name=fields.Char(string="Type name",required=True, index=True)
     capacity = fields.Integer(string="Capacity")
-    price_per_hour = fields.Monetary(string="Price Per Hour")
+    price_per_hour = fields.Monetary(string="Price Per Hour", currency_field='currency_id')
+    currency_id = fields.Many2one(
+        'res.currency',
+        required=True,
+        default=lambda self: self.env.company.currency_id.id,
+    )
     
 
 class HotelEventHall(models.Model):
@@ -40,13 +45,18 @@ class HotelEventHall(models.Model):
     )
     
     capacity = fields.Integer(string="Capacity")
-    price_per_hour = fields.Monetary(string="Price Per Hour")
+    price_per_hour = fields.Monetary(string="Price Per Hour", currency_field='currency_id')
     amenities_ids = fields.Many2many(
         string="Amenities",
         comodel_name='hotel.event.amenity',
         relation='hotel_event_hall_amenity_rel',
         column1='hall_id', 
         column2='amenity_id',
+    )
+    currency_id = fields.Many2one(
+        'res.currency',
+        required=True,
+        default=lambda self: self.env.company.currency_id.id,
     )
 
 class HotelEventPackage(models.Model):
@@ -56,13 +66,18 @@ class HotelEventPackage(models.Model):
 
     name = fields.Char(string="Package Name", required=True, index=True)
     description = fields.Text(string="Description")
-    price = fields.Monetary(string="Price")
+    price = fields.Monetary(string="Price", currency_field='currency_id')
     services_ids = fields.Many2many(
         string="Included Services/Items",
         comodel_name='product.product',
         relation='hotel_event_package_service_rel', 
         column1='package_id', 
         column2='product_id',
+    )
+    currency_id = fields.Many2one(
+        'res.currency',
+        required=True,
+        default=lambda self: self.env.company.currency_id.id,
     )
 
 class HotelEventBooking(models.Model):
@@ -90,8 +105,8 @@ class HotelEventBooking(models.Model):
         comodel_name='hotel.event.package', 
         ondelete='set null'
         )
-    deposit_amount = fields.Monetary(string='Deposit Amount')
-    total_amount = fields.Monetary(string='Total Amount')
+    deposit_amount = fields.Monetary(string='Deposit Amount', currency_field='currency_id')
+    total_amount = fields.Monetary(string='Total Amount', currency_field='currency_id')
 
     status = fields.Selection(
         string='Status',
@@ -101,5 +116,10 @@ class HotelEventBooking(models.Model):
         default='draft',
         required=True,
         index=True
+    )
+    currency_id = fields.Many2one(
+        'res.currency',
+        required=True,
+        default=lambda self: self.env.company.currency_id.id,
     )
 

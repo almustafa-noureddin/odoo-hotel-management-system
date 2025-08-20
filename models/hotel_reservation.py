@@ -50,8 +50,8 @@ class HotelReservation(models.Model):
         index=True
     )
 
-    deposit_amount = fields.Monetary(string='Deposit Amount')
-    total_amount = fields.Monetary(string='Total Amount')
+    deposit_amount = fields.Monetary(string='Deposit Amount', currency_field='currency_id')
+    total_amount = fields.Monetary(string='Total Amount', currency_field='currency_id')
     payment_status = fields.Selection(
         string='Payment Status',
         selection=[('unpaid', 'Unpaid'),
@@ -73,6 +73,12 @@ class HotelReservation(models.Model):
         required=True,
         index=True
     )
+    currency_id = fields.Many2one(
+        'res.currency',
+        required=True,
+        default=lambda self: self.env.company.currency_id.id,
+    )
+
 
     # accounting links 
     invoice_ids = fields.One2many('account.move', 'hotel_reservation_id', string='Invoices')

@@ -5,13 +5,15 @@
     'category': 'Hotel',
     'author': 'Almustafa',
     'website': '',
-    'license': 'LGPL-3.0',
+    'license': 'LGPL-3',
 
     'depends': [
         'base',
+        'account',
+        'account_payment',
     ],
     'data': [
-        '',
+    
     ],
     'installable': True,
     'auto_install': False,
