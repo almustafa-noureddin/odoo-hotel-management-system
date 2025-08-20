@@ -7,6 +7,7 @@ class HotelReservation(models.Model):
     _description = 'Hotel Reservation'
     _order = 'check_in desc, id desc'
 
+    name = fields.Char(string="Reference", copy=False, readonly=True, default="/")
     guest_id = fields.Many2one(
         string='Guest ID',
         comodel_name='res.partner',
@@ -88,6 +89,43 @@ class HotelReservation(models.Model):
         for rec in self:
             if rec.check_out and rec.check_in and rec.check_out <= rec.check_in:
                 raise ValidationError("Check-out must be after check-in.")
+    
+    @api.model
+    def create(self, vals):
+        rec = super().create(vals)
+        if rec.name in (False, "/"):
+            rec.name = self.env['ir.sequence'].next_by_code('hotel.reservation') or '/'
+        return rec
+
+class HotelReservation(models.Model):
+    _inherit = "hotel.reservation"
+
+    def _set_room_status(self, room, status):
+        if room and status in ('available', 'occupied'):
+            room.status = status
+
+    @api.model
+    def create(self, vals):
+        rec = super().create(vals)
+        # if created already confirmed, mark occupied
+        try:
+            if rec.status == 'confirmed':
+                self._set_room_status(rec.room_id, 'occupied')
+        except Exception:
+            # don't block creation on a secondary write
+            pass
+        return rec
+
+    def write(self, vals):
+        res = super().write(vals)
+        # react only when status changes
+        if 'status' in vals:
+            for rec in self:
+                if vals['status'] == 'confirmed':
+                    self._set_room_status(rec.room_id, 'occupied')
+                elif vals['status'] in ('cancelled', 'checked_out'):
+                    self._set_room_status(rec.room_id, 'available')
+        return res
 
 
 # create the reverse FK on account.move

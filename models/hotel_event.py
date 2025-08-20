@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from odoo import models, fields
+from odoo import models, fields, api
+from datetime import timedelta
 
 class HotelEventAmenity(models.Model):
     _name = 'hotel.event.amenity'
@@ -14,7 +15,7 @@ class HotelEventHallType(models.Model):
     _description="Event / Banquet Hall Type"
     _order="name"
 
-    name=fields.Char(string="Type name",required=True, index=True)
+    name=fields.Char(string="Hall Type",required=True, index=True)
     capacity = fields.Integer(string="Capacity")
     price_per_hour = fields.Monetary(string="Price Per Hour", currency_field='currency_id')
     currency_id = fields.Many2one(
@@ -85,6 +86,8 @@ class HotelEventBooking(models.Model):
     _description = 'Event Booking'
     _order = 'event_date desc, id desc'
 
+    name = fields.Char(string="Reference", copy=False, readonly=True, default="/")
+
     hall_id = fields.Many2one(
         string="Hall",
         comodel_name='hotel.event.hall', 
@@ -122,4 +125,35 @@ class HotelEventBooking(models.Model):
         required=True,
         default=lambda self: self.env.company.currency_id.id,
     )
+    @api.model
+    def create(self, vals):
+        rec = super().create(vals)
+        if rec.name in (False, "/"):
+            rec.name = self.env['ir.sequence'].next_by_code('hotel.reservation') or '/'
+        return rec
 
+
+class HotelEventBooking(models.Model):
+    _inherit = "hotel.event.booking"
+
+    @api.constrains('hall_id', 'event_date', 'duration_hours')
+    def _check_overlap(self):
+        """Naive time overlap: [start, end) vs others on same hall."""
+        for rec in self:
+            if not (rec.hall_id and rec.event_date and rec.duration_hours):
+                continue
+            start = rec.event_date
+            end = start + timedelta(hours=rec.duration_hours)
+
+            # quick shortlist: anything that starts before our end on the same hall
+            others = self.search([
+                ('id', '!=', rec.id),
+                ('hall_id', '=', rec.hall_id.id),
+                ('event_date', '<', end),
+            ])
+
+            for o in others:
+                o_end = (o.event_date or start) + timedelta(hours=o.duration_hours or 0)
+                # overlap if o.start < end AND start < o.end
+                if o.event_date and (o.event_date < end and start < o_end):
+                    raise models.ValidationError("Hall is already booked for that time window.")

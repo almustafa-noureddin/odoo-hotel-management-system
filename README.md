@@ -24,21 +24,21 @@ This project is an Odoo 18 module designed to provide a single, integrated solut
 
 The system is designed to be modular, allowing for a phased implementation of features.
 
--   [ ] **Core Data Models:**
+-   [x] **Core Data Models:**
     -   [x] Hotel Properties & Room Types
     -   [x] Individual Room Management
-    -   [ ] Rate & Pricing Engine
--   [ ] **Reservation & Booking Management:**
-    -   [ ] Visual Booking Calendar (Day/Week/Month views)
-    -   [ ] Create, Update, Cancel Bookings
-    -   [ ] Automated Double-Booking Prevention
-    -   [ ] Group Bookings
+    -   [x] Rate & Pricing Engine
+-   [x] **Reservation & Booking Management:**
+    -   [x] Visual Booking Calendar (Day/Week/Month views)
+    -   [x] Create, Update, Cancel Bookings
+    -   [x] Automated Double-Booking Prevention
+    -   [x] Group Bookings
 -   [ ] **Front Desk Operations:**
-    -   [ ] Streamlined Guest Check-in / Check-out
+    -   [x] Streamlined Guest Check-in / Check-out
     -   [ ] Centralized Guest Folio for all charges
     -   [ ] Automated Invoice Generation
 -   [ ] **Housekeeping Automation:**
-    -   [ ] Room Status Tracking (`Clean`, `Needs Cleaning`, `Maintenance`)
+    -   [x] Room Status Tracking (`Clean`, `Needs Cleaning`, `Maintenance`)
     -   [ ] Automated Task Generation post-checkout
     -   [ ] Housekeeper Assignments & Mobile View
 -   [ ] **Integrations:**

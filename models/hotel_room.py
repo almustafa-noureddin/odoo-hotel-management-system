@@ -5,7 +5,7 @@ class HotelRoomType(models.Model):
     _description = 'hotel room type'
     _order = 'name'
 
-    name = fields.Char(string="Room Type (Deluxe, Suite, etc.)",required=True, index=True)
+    name = fields.Char(string="Room Type)",required=True, index=True)
     description = fields.Char(string="Room type description")
     capacity = fields.Integer(string="Capacity",default=1)
     default_price = fields.Monetary(string="Base price", currency_field='currency_id')
@@ -30,7 +30,7 @@ class HotelRoom (models.Model):
     _description= "hotel room"
     _order = 'name'
 
-    name =fields.Char(String="Room number or code",required=True, index=True)
+    name =fields.Char(string="Room number or code",required=True, index=True)
     room_type_id= fields.Many2one('hotel.room.type', string="Room Type")
     branch_id = fields.Many2one(
         string='Branch Location',

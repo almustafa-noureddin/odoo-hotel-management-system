@@ -1,0 +1,76 @@
+<odoo>
+  <!-- ========================== -->
+  <!-- Reservations               -->
+  <!-- ========================== -->
+  <record id="view_hotel_reservation_list" model="ir.ui.view">
+    <field name="name">hotel.reservation.list</field>
+    <field name="model">hotel.reservation</field>
+    <field name="arch" type="xml">
+      <list>
+        <field name="guest_id"/>
+        <field name="room_id"/>
+        <field name="branch_id"/>
+        <field name="check_in"/>
+        <field name="check_out"/>
+        <field name="rate_type"/>
+        <field name="payment_status"/>
+        <field name="status"/>
+        <field name="total_amount"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_hotel_reservation_form" model="ir.ui.view">
+    <field name="name">hotel.reservation.form</field>
+    <field name="model">hotel.reservation</field>
+    <field name="arch" type="xml">
+      <form>
+        <sheet>
+          <group>
+            <field name="guest_id" options="{'no_open': False}"/>
+            <field name="branch_id" readonly="1"/>
+            <!-- keep room tied to the same branch: add domain="[('branch_id','=',branch_id)]" -->
+            <field name="room_id"/>
+            
+          </group>
+          <group>
+            <field name="check_in"/>
+            <field name="check_out"/>
+          </group>
+          <group>
+            <field name="booking_source"/>
+            <field name="rate_type"/>
+          </group>
+          <group>
+            <field name="deposit_amount"/>
+            <field name="total_amount"/>
+            <field name="currency_id" groups="base.group_no_one"/>
+          </group>
+          <group>
+            <field name="payment_status"/>
+            <field name="status"/>
+          </group>
+
+          <notebook>
+            <page string="Invoices">
+              <field name="invoice_ids" readonly="1" context="{'default_invoice_origin': name}">
+                <list>
+                  <field name="name"/>
+                  <field name="state"/>
+                  <field name="amount_total"/>
+                  <field name="invoice_date"/>
+                </list>
+              </field>
+            </page>
+          </notebook>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_hotel_reservation" model="ir.actions.act_window">
+    <field name="name">Reservations</field>
+    <field name="res_model">hotel.reservation</field>
+    <field name="view_mode">list,form</field>
+  </record>
+</odoo>
