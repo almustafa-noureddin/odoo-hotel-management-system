@@ -1,48 +1,81 @@
 <odoo>
     <!-- =========================
-         Branches (Saudi Arabia)
+         Companies (Branches)
          ========================= -->
-    <record id="branch_jeddah" model="res.branch">
+    <record id="company_jeddah" model="res.company">
         <field name="name">Sunrise Grand – Jeddah</field>
-        <field name="location">Jeddah, Saudi Arabia</field>
-        <field name="active">True</field>
+        <field name="currency_id" ref="base.SAR"/>
     </record>
-    <record id="branch_riyadh" model="res.branch">
+    <record id="company_riyadh" model="res.company">
         <field name="name">Sunrise Grand – Riyadh</field>
-        <field name="location">Riyadh, Saudi Arabia</field>
-        <field name="active">True</field>
+        <field name="currency_id" ref="base.SAR"/>
     </record>
-    <record id="branch_dammam" model="res.branch">
+    <record id="company_dammam" model="res.company">
         <field name="name">Sunrise Grand – Dammam</field>
-        <field name="location">Dammam, Saudi Arabia</field>
-        <field name="active">True</field>
+        <field name="currency_id" ref="base.SAR"/>
     </record>
-    <record id="branch_abha" model="res.branch">
+    <record id="company_abha" model="res.company">
         <field name="name">Sunrise Grand – Abha</field>
-        <field name="location">Abha, Saudi Arabia</field>
-        <field name="active">True</field>
+        <field name="currency_id" ref="base.SAR"/>
     </record>
-    <record id="branch_alkhobar" model="res.branch">
+    <record id="company_alkhobar" model="res.company">
         <field name="name">Sunrise Grand – Al Khobar</field>
-        <field name="location">Al Khobar, Saudi Arabia</field>
-        <field name="active">True</field>
+        <field name="currency_id" ref="base.SAR"/>
     </record>
 
     <!-- =========================
-         Room Types & Amenities
+         Users & Managers per branch
+         ========================= -->
+    <!-- Managers -->
+    <record id="user_mgr_jed" model="res.users">
+        <field name="name">Manager Jeddah</field>
+        <field name="login">manager.jed@sunrisegrand.sa</field>
+        <field name="password">demo</field>
+        <field name="company_id" ref="company_jeddah"/>
+        <field name="company_ids" eval="[(6,0,[ref('company_jeddah')])]"/>
+        <field name="groups_id" eval="[(4, ref('custom_hotel_management.group_hotel_manager'))]"/>
+    </record>
+    <record id="user_mgr_ryd" model="res.users">
+        <field name="name">Manager Riyadh</field>
+        <field name="login">manager.ryd@sunrisegrand.sa</field>
+        <field name="password">demo</field>
+        <field name="company_id" ref="company_riyadh"/>
+        <field name="company_ids" eval="[(6,0,[ref('company_riyadh')])]"/>
+        <field name="groups_id" eval="[(4, ref('custom_hotel_management.group_hotel_manager'))]"/>
+    </record>
+
+    <!-- Staff / Users -->
+    <record id="user_staff_dmm" model="res.users">
+        <field name="name">Front Desk Dammam</field>
+        <field name="login">fd.dmm@sunrisegrand.sa</field>
+        <field name="password">demo</field>
+        <field name="company_id" ref="company_dammam"/>
+        <field name="company_ids" eval="[(6,0,[ref('company_dammam')])]"/>
+        <!-- If you have a hotel_user group, add it; otherwise omit -->
+        <field name="groups_id" eval="[(4, ref('custom_hotel_management.group_hotel_user'))]"/>
+    </record>
+    <record id="user_housekeeper_jed" model="res.users">
+        <field name="name">HK – Jeddah</field>
+        <field name="login">hk.jed@sunrisegrand.sa</field>
+        <field name="password">demo</field>
+        <field name="company_id" ref="company_jeddah"/>
+        <field name="company_ids" eval="[(6,0,[ref('company_jeddah')])]"/>
+        <field name="groups_id" eval="[(4, ref('custom_hotel_management.group_hotel_user'))]"/>
+    </record>
+
+    <!-- =========================
+         Room Types & Amenities (unchanged)
          ========================= -->
     <record id="rt_standard" model="hotel.room.type">
         <field name="name">Standard Room</field>
         <field name="description">King/Twin — business-friendly</field>
         <field name="capacity">2</field>
-        <!-- Interview ARR: SAR 450–750; set base price in that band -->
         <field name="default_price">550</field>
     </record>
     <record id="rt_suite" model="hotel.room.type">
         <field name="name">Executive Suite</field>
         <field name="description">One-bedroom suite with lounge</field>
         <field name="capacity">3</field>
-        <!-- Interview ARR: SAR 1,200–1,800 -->
         <field name="default_price">1400</field>
     </record>
 
@@ -65,13 +98,13 @@
     </record>
 
     <!-- =========================
-         Rooms (small sample per branch)
+         Rooms (company_id instead of branch_id)
          ========================= -->
-    <!-- Jeddah (flagship; sea view available) -->
+    <!-- Jeddah -->
     <record id="room_jed_1101" model="hotel.room">
         <field name="name">JED-1101</field>
         <field name="room_type_id" ref="rt_standard"/>
-        <field name="branch_id" ref="branch_jeddah"/>
+        <field name="company_id" ref="company_jeddah"/>
         <field name="floor_number">11</field>
         <field name="status">available</field>
         <field name="price">650</field>
@@ -80,18 +113,28 @@
     <record id="room_jed_1502" model="hotel.room">
         <field name="name">JED-1502</field>
         <field name="room_type_id" ref="rt_suite"/>
-        <field name="branch_id" ref="branch_jeddah"/>
+        <field name="company_id" ref="company_jeddah"/>
         <field name="floor_number">15</field>
         <field name="status">occupied</field>
         <field name="price">1750</field>
         <field name="amenities_ids" eval="[(6,0,[ref('amen_wifi'), ref('amen_prayer_mat'), ref('amen_smart_tv'), ref('amen_sea_view')])]"/>
     </record>
+    <!-- Extra Jeddah room -->
+    <record id="room_jed_0904" model="hotel.room">
+        <field name="name">JED-0904</field>
+        <field name="room_type_id" ref="rt_standard"/>
+        <field name="company_id" ref="company_jeddah"/>
+        <field name="floor_number">9</field>
+        <field name="status">dirty</field>
+        <field name="price">600</field>
+        <field name="amenities_ids" eval="[(6,0,[ref('amen_wifi'), ref('amen_prayer_mat'), ref('amen_smart_tv')])]"/>
+    </record>
 
-    <!-- Riyadh (urban; no poolside café) -->
+    <!-- Riyadh -->
     <record id="room_ryd_0708" model="hotel.room">
         <field name="name">RYD-0708</field>
         <field name="room_type_id" ref="rt_standard"/>
-        <field name="branch_id" ref="branch_riyadh"/>
+        <field name="company_id" ref="company_riyadh"/>
         <field name="floor_number">7</field>
         <field name="status">available</field>
         <field name="price">590</field>
@@ -100,40 +143,40 @@
     <record id="room_ryd_1603" model="hotel.room">
         <field name="name">RYD-1603</field>
         <field name="room_type_id" ref="rt_suite"/>
-        <field name="branch_id" ref="branch_riyadh"/>
+        <field name="company_id" ref="company_riyadh"/>
         <field name="floor_number">16</field>
         <field name="status">maintenance</field>
         <field name="price">1600</field>
         <field name="amenities_ids" eval="[(6,0,[ref('amen_wifi'), ref('amen_prayer_mat'), ref('amen_smart_tv'), ref('amen_city_view')])]"/>
     </record>
 
-    <!-- Dammam (resort-style; sea view) -->
+    <!-- Dammam -->
     <record id="room_dmm_0305" model="hotel.room">
         <field name="name">DMM-0305</field>
         <field name="room_type_id" ref="rt_standard"/>
-        <field name="branch_id" ref="branch_dammam"/>
+        <field name="company_id" ref="company_dammam"/>
         <field name="floor_number">3</field>
         <field name="status">dirty</field>
         <field name="price">520</field>
         <field name="amenities_ids" eval="[(6,0,[ref('amen_wifi'), ref('amen_prayer_mat'), ref('amen_smart_tv'), ref('amen_sea_view')])]"/>
     </record>
 
-    <!-- Abha (smaller branch) -->
+    <!-- Abha -->
     <record id="room_abha_0202" model="hotel.room">
         <field name="name">ABH-0202</field>
         <field name="room_type_id" ref="rt_standard"/>
-        <field name="branch_id" ref="branch_abha"/>
+        <field name="company_id" ref="company_abha"/>
         <field name="floor_number">2</field>
         <field name="status">available</field>
         <field name="price">480</field>
         <field name="amenities_ids" eval="[(6,0,[ref('amen_wifi'), ref('amen_prayer_mat'), ref('amen_smart_tv')])]"/>
     </record>
 
-    <!-- Al Khobar (large; poolside café) -->
+    <!-- Al Khobar -->
     <record id="room_akh_1206" model="hotel.room">
         <field name="name">AKH-1206</field>
         <field name="room_type_id" ref="rt_suite"/>
-        <field name="branch_id" ref="branch_alkhobar"/>
+        <field name="company_id" ref="company_alkhobar"/>
         <field name="floor_number">12</field>
         <field name="status">available</field>
         <field name="price">1650</field>
@@ -141,7 +184,7 @@
     </record>
 
     <!-- =========================
-         Guests (Saudi + intl mix)
+         Guests
          ========================= -->
     <record id="guest_kareem" model="res.partner">
         <field name="name">Kareem Al-Fayed</field>
@@ -165,10 +208,8 @@
     </record>
 
     <!-- =========================
-         Reservations (mix of channels/rates)
-         Check-in 14:00 / Check-out 12:00
+         Reservations (dates ≥ 2025-08-21)
          ========================= -->
-    <!-- Website, standard rate, partial deposit -->
     <record id="resv_anna_riyadh" model="hotel.reservation">
         <field name="guest_id" ref="guest_anna"/>
         <field name="room_id" ref="room_ryd_0708"/>
@@ -182,7 +223,6 @@
         <field name="status">confirmed</field>
     </record>
 
-    <!-- OTA (Booking.com), seasonal rate around winter holidays -->
     <record id="resv_kareem_jeddah" model="hotel.reservation">
         <field name="guest_id" ref="guest_kareem"/>
         <field name="room_id" ref="room_jed_1502"/>
@@ -196,7 +236,6 @@
         <field name="status">confirmed</field>
     </record>
 
-    <!-- Corporate rate, travel agent channel, Riyadh -->
     <record id="resv_omar_riyadh" model="hotel.reservation">
         <field name="guest_id" ref="guest_omar"/>
         <field name="room_id" ref="room_ryd_1603"/>
@@ -210,14 +249,26 @@
         <field name="status">draft</field>
     </record>
 
+    <!-- Extra reservation to show company flow -->
+    <record id="resv_walkin_jed_0904" model="hotel.reservation">
+        <field name="guest_id" ref="guest_kareem"/>
+        <field name="room_id" ref="room_jed_0904"/>
+        <field name="check_in">2025-08-28 14:00:00</field>
+        <field name="check_out">2025-08-29 12:00:00</field>
+        <field name="booking_source">walk_in</field>
+        <field name="rate_type">standard</field>
+        <field name="deposit_amount">0</field>
+        <field name="total_amount">600</field>
+        <field name="payment_status">unpaid</field>
+        <field name="status">confirmed</field>
+    </record>
+
     <!-- =========================
-         Event Halls, Types & Amenities
-         (prices per hour; capacities from interview ranges)
+         Event Halls / Types / Amenities
          ========================= -->
     <record id="hall_type_large" model="hotel.event.hall.type">
         <field name="name">Large Banquet Hall</field>
         <field name="capacity">400</field>
-        <!-- Interview: SAR 5,000–15,000 per event. Use ~SAR 1,800/hr -->
         <field name="price_per_hour">1800</field>
     </record>
     <record id="hall_type_medium" model="hotel.event.hall.type">
@@ -241,10 +292,10 @@
         <field name="name">Arabic Coffee Station</field>
     </record>
 
-    <!-- Riyadh: 1 large, 1 medium, 1 small (subset of real distribution) -->
+    <!-- Halls (company_id instead of branch_id) -->
     <record id="hall_ryd_grand1" model="hotel.event.hall">
         <field name="name">Riyadh Grand Ballroom A</field>
-        <field name="branch_id" ref="branch_riyadh"/>
+        <field name="company_id" ref="company_riyadh"/>
         <field name="hall_type_id" ref="hall_type_large"/>
         <field name="capacity">450</field>
         <field name="price_per_hour">2000</field>
@@ -252,7 +303,7 @@
     </record>
     <record id="hall_ryd_conf1" model="hotel.event.hall">
         <field name="name">Riyadh Conference Hall 1</field>
-        <field name="branch_id" ref="branch_riyadh"/>
+        <field name="company_id" ref="company_riyadh"/>
         <field name="hall_type_id" ref="hall_type_medium"/>
         <field name="capacity">180</field>
         <field name="price_per_hour">950</field>
@@ -260,17 +311,16 @@
     </record>
     <record id="hall_ryd_meet_a" model="hotel.event.hall">
         <field name="name">Riyadh Meeting A</field>
-        <field name="branch_id" ref="branch_riyadh"/>
+        <field name="company_id" ref="company_riyadh"/>
         <field name="hall_type_id" ref="hall_type_small"/>
         <field name="capacity">24</field>
         <field name="price_per_hour">380</field>
         <field name="amenities_ids" eval="[(6,0,[ref('ev_amen_projector')])]"/>
     </record>
 
-    <!-- Jeddah: 1 large + 1 small -->
     <record id="hall_jed_grand" model="hotel.event.hall">
         <field name="name">Jeddah Grand Ballroom</field>
-        <field name="branch_id" ref="branch_jeddah"/>
+        <field name="company_id" ref="company_jeddah"/>
         <field name="hall_type_id" ref="hall_type_large"/>
         <field name="capacity">420</field>
         <field name="price_per_hour">1900</field>
@@ -278,24 +328,23 @@
     </record>
     <record id="hall_jed_meet_b" model="hotel.event.hall">
         <field name="name">Jeddah Meeting B</field>
-        <field name="branch_id" ref="branch_jeddah"/>
+        <field name="company_id" ref="company_jeddah"/>
         <field name="hall_type_id" ref="hall_type_small"/>
         <field name="capacity">30</field>
         <field name="price_per_hour">360</field>
         <field name="amenities_ids" eval="[(6,0,[ref('ev_amen_arabic_coffee')])]"/>
     </record>
 
-    <!-- Dammam: 1 medium -->
     <record id="hall_dmm_conf" model="hotel.event.hall">
         <field name="name">Dammam Conference Hall</field>
-        <field name="branch_id" ref="branch_dammam"/>
+        <field name="company_id" ref="company_dammam"/>
         <field name="hall_type_id" ref="hall_type_medium"/>
         <field name="capacity">160</field>
         <field name="price_per_hour">900</field>
         <field name="amenities_ids" eval="[(6,0,[ref('ev_amen_sound'), ref('ev_amen_projector')])]"/>
     </record>
 
-    <!-- Event Packages (prices reflect interview ranges) -->
+    <!-- Packages -->
     <record id="pkg_wedding_gold" model="hotel.event.package">
         <field name="name">Wedding Gold (300 guests)</field>
         <field name="description">Hall + standard décor + sound + Arabic coffee station + buffet</field>
@@ -307,7 +356,7 @@
         <field name="price">18000</field>
     </record>
 
-    <!-- Event Bookings (deposit 30–50% as per policy) -->
+    <!-- Event Bookings -->
     <record id="evt_jed_wedding_oct" model="hotel.event.booking">
         <field name="hall_id" ref="hall_jed_grand"/>
         <field name="customer_id" ref="guest_kareem"/>
@@ -328,26 +377,37 @@
         <field name="total_amount">18000</field>
         <field name="status">confirmed</field>
     </record>
+    <!-- Extra: meeting in Jeddah to test overlap constraint -->
+    <record id="evt_jed_meeting_sep" model="hotel.event.booking">
+        <field name="hall_id" ref="hall_jed_meet_b"/>
+        <field name="customer_id" ref="guest_omar"/>
+        <field name="event_date">2025-09-12 10:00:00</field>
+        <field name="duration_hours">3</field>
+        <field name="status">confirmed</field>
+    </record>
 
     <!-- =========================
-         Housekeeping Tasks
+         Housekeeping (assigned to users)
          ========================= -->
     <record id="hktask_clean_dmm_0305" model="hotel.housekeeping.task">
         <field name="room_id" ref="room_dmm_0305"/>
         <field name="task_type">cleaning</field>
         <field name="status">pending</field>
         <field name="date_scheduled">2025-08-21 09:00:00</field>
+        <field name="assigned_to" ref="user_staff_dmm"/>
     </record>
     <record id="hktask_inspect_ryd_1603" model="hotel.housekeeping.task">
         <field name="room_id" ref="room_ryd_1603"/>
         <field name="task_type">inspection</field>
         <field name="status">in_progress</field>
         <field name="date_scheduled">2025-08-21 10:30:00</field>
+        <field name="assigned_to" ref="user_mgr_ryd"/>
     </record>
     <record id="hktask_clean_jed_1101" model="hotel.housekeeping.task">
         <field name="room_id" ref="room_jed_1101"/>
         <field name="task_type">cleaning</field>
         <field name="status">pending</field>
         <field name="date_scheduled">2025-08-21 13:30:00</field>
+        <field name="assigned_to" ref="user_housekeeper_jed"/>
     </record>
 </odoo>

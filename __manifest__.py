@@ -16,6 +16,7 @@
         "mail",
     ],
     'data': [
+    "security/security.xml",
     "security/ir.model.access.csv",
     "data/sequences.xml",
     "views/hotel_room_views.xml",

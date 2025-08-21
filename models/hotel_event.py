@@ -97,6 +97,12 @@ class HotelEventBooking(models.Model):
         required=True, 
         ondelete='restrict'
         )
+    company_id = fields.Many2one(
+        string="Branch",
+        related='hall_id.company_id',
+        store=True,
+        readonly=True
+    )
     customer_id = fields.Many2one(
         string="Customer",
         comodel_name='res.partner', 

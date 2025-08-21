@@ -11,6 +11,13 @@ class HotelHousekeepingTask(models.Model):
         required=True, 
         ondelete='cascade'
         )
+    company_id = fields.Many2one(
+        'res.company', 
+        string='Branch',
+        related='room_id.company_id', 
+        store=True, 
+        readonly=True
+    )
     assigned_to = fields.Many2one(
         string='Assigned To',
         comodel_name='res.users', 
