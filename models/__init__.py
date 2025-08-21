@@ -1,4 +1,3 @@
-from . import hotel_branch
 from . import hotel_event
 from . import hotel_guests
 from . import hotel_housekeeping

@@ -29,12 +29,16 @@ class HotelRoom (models.Model):
     _name= "hotel.room"
     _description= "hotel room"
     _order = 'name'
+    _check_company_auto = True  
 
     name =fields.Char(string="Room number or code",required=True, index=True)
     room_type_id= fields.Many2one('hotel.room.type', string="Room Type")
-    branch_id = fields.Many2one(
-        string='Branch Location',
-        comodel_name='res.branch',
+    company_id = fields.Many2one(
+        comodel_name='res.company',
+        string="Branch",
+        required=True,
+        index=True,
+        default=lambda self: self.env.company,
         ondelete='restrict',
     )
     floor_number= fields.Integer(string="Floor Number")

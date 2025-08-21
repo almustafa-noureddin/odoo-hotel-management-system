@@ -29,14 +29,17 @@ class HotelEventHall(models.Model):
     _name = 'hotel.event.hall'
     _description = 'Event / Banquet Hall'
     _order = 'name'
+    _check_company_auto = True  
 
     name = fields.Char(string="Hall Name or Number",required=True, index=True)
-    branch_id = fields.Many2one(
+    company_id = fields.Many2one(
+        comodel_name='res.company',
         string="Branch",
-        comodel_name='res.branch', 
-        required=True, 
-        ondelete='restrict'
-        )
+        required=True,
+        index=True,
+        default=lambda self: self.env.company,
+        ondelete='restrict',
+    )
     
     hall_type_id = fields.Many2one(
         string='Hall Type',

@@ -18,7 +18,6 @@
     'data': [
     "security/ir.model.access.csv",
     "data/sequences.xml",
-    "views/hotel_branch_views.xml",
     "views/hotel_room_views.xml",
     "views/hotel_reservation_views.xml",
     "views/hotel_housekeeping_views.xml",

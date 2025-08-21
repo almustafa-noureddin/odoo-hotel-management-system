@@ -9,7 +9,7 @@
       <list>
         <field name="guest_id"/>
         <field name="room_id"/>
-        <field name="branch_id"/>
+        <field name="company_id"/>
         <field name="check_in"/>
         <field name="check_out"/>
         <field name="rate_type"/>
@@ -28,8 +28,8 @@
         <sheet>
           <group>
             <field name="guest_id" options="{'no_open': False}"/>
-            <field name="branch_id" readonly="1"/>
-            <!-- keep room tied to the same branch: add domain="[('branch_id','=',branch_id)]" -->
+            <field name="company_id" readonly="1"/>
+            <!-- keep room tied to the same branch: add domain="[('company_id','=',company_id)]" -->
             <field name="room_id"/>
             
           </group>

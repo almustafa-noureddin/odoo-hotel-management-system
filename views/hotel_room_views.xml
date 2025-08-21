@@ -85,7 +85,7 @@
     <field name="arch" type="xml">
       <list>
         <field name="name"/>
-        <field name="branch_id"/>
+        <field name="company_id"/>
         <field name="room_type_id"/>
         <field name="floor_number"/>
         <field name="status"/>
@@ -102,7 +102,7 @@
         <sheet>
           <group>
             <field name="name"/>
-            <field name="branch_id"/>
+            <field name="company_id"/>
             <field name="room_type_id"/>
           </group>
           <group>

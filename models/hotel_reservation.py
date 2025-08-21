@@ -6,6 +6,7 @@ class HotelReservation(models.Model):
     _name = 'hotel.reservation'
     _description = 'Hotel Reservation'
     _order = 'check_in desc, id desc'
+    _check_company_auto = True
 
     name = fields.Char(string="Reference", copy=False, readonly=True, default="/")
     guest_id = fields.Many2one(
@@ -20,12 +21,13 @@ class HotelReservation(models.Model):
         required=True, 
         ondelete='restrict'
         )
-    branch_id = fields.Many2one(
-        string="Branch ID",
-        related='room_id.branch_id', 
-        store=True, 
+    company_id = fields.Many2one(
+        string="Branch",
+        related='room_id.company_id',
+        store=True,
         readonly=True
-        )
+    )
+    
 
     check_in = fields.Datetime(string="Check In",required=True, index=True)
     check_out = fields.Datetime(string="Check Out",required=True, index=True)

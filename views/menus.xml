@@ -6,7 +6,6 @@
   <menuitem id="menu_hotel_config" name="Configuration" parent="menu_hotel_root" sequence="90"/>
 
   <!-- Config submenus -->
-  <menuitem id="menu_hotel_branches" name="Branches" parent="menu_hotel_config" action="action_res_branch"/>
   <menuitem id="menu_hotel_room_types" name="Room Types" parent="menu_hotel_config" action="action_hotel_room_type"/>
   <menuitem id="menu_hotel_room_amenities" name="Room Amenities" parent="menu_hotel_config" action="action_hotel_room_amenity"/>
   <menuitem id="menu_hotel_event_hall_types" name="Hall Types" parent="menu_hotel_config" action="action_hotel_event_hall_type"/>
