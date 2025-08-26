@@ -34,11 +34,4 @@
     <field name="target">new</field>
   </record>
 
-  <!-- Menu item under Hotel -->
-  <menuitem id="menu_hotel_availability"
-            name="Availability"
-            parent="menu_hotel_root"
-            action="action_hotel_availability_wizard"
-            sequence="25"
-            groups="custom_hotel_management.group_hotel_user"/>
 </odoo>

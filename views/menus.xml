@@ -6,6 +6,8 @@
   <menuitem id="menu_hotel_config" name="Configuration" parent="menu_hotel_root" sequence="90" groups="custom_hotel_management.group_hotel_manager"/>
 
   <!-- Config submenus -->
+  <menuitem id="menu_hotel_rooms" name="Rooms" parent="menu_hotel_config" action="action_hotel_room"/>
+  <menuitem id="menu_hotel_events" name="Event Halls" parent="menu_hotel_config" action="action_hotel_event_hall"/>
   <menuitem id="menu_hotel_room_types" name="Room Types" parent="menu_hotel_config" action="action_hotel_room_type"/>
   <menuitem id="menu_hotel_room_amenities" name="Room Amenities" parent="menu_hotel_config" action="action_hotel_room_amenity"/>
   <menuitem id="menu_hotel_event_hall_types" name="Hall Types" parent="menu_hotel_config" action="action_hotel_event_hall_type"/>
@@ -13,9 +15,19 @@
   <menuitem id="menu_hotel_event_packages" name="Event Packages" parent="menu_hotel_config" action="action_hotel_event_package"/>
 
   <!-- Operations -->
-  <menuitem id="menu_hotel_rooms" name="Rooms" parent="menu_hotel_root" action="action_hotel_room" sequence="20"/>
-  <menuitem id="menu_hotel_reservations" name="Reservations" parent="menu_hotel_root" action="action_hotel_reservation" sequence="30"/>
+  <menuitem id="menu_hotel_reservations" name="Reservations" parent="menu_hotel_root" action="action_hotel_reservation" sequence="20"/>
   <menuitem id="menu_hotel_housekeeping" name="Housekeeping" parent="menu_hotel_root" action="action_hotel_housekeeping_task" sequence="40"/>
-  <menuitem id="menu_hotel_events" name="Event Halls" parent="menu_hotel_root" action="action_hotel_event_hall" sequence="50"/>
   <menuitem id="menu_hotel_event_bookings" name="Event Bookings" parent="menu_hotel_root" action="action_hotel_event_booking" sequence="60"/>
+  <menuitem id="menu_hotel_availability"
+            name="Room Availability"
+            parent="menu_hotel_root"
+            action="action_hotel_availability_wizard"
+            sequence="25"
+            groups="custom_hotel_management.group_hotel_user"/>
+  <menuitem id="menu_hotel_event_availability"
+            name="Event Hall Availability"
+            parent="menu_hotel_root"
+            action="action_hotel_event_availability_wizard"
+            sequence="65"
+            groups="custom_hotel_management.group_hotel_user"/>
 </odoo>

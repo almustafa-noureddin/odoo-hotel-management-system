@@ -165,3 +165,54 @@ class HotelEventBooking(models.Model):
                 # overlap if o.start < end AND start < o.end
                 if o.event_date and (o.event_date < end and start < o_end):
                     raise models.ValidationError("Hall is already booked for that time window.")
+
+class HotelEventHall(models.Model):
+    _inherit = 'hotel.event.hall'
+
+    @api.onchange('hall_type_id')
+    def _onchange_hall_type_id_autofill(self):
+        """When a hall type is chosen, prefill capacity & price from the type.
+        Staff can still override after this onchange."""
+        for rec in self:
+            ht = rec.hall_type_id
+            if ht:
+                # Copy defaults from type
+                if hasattr(ht, 'capacity'):
+                    rec.capacity = ht.capacity or 0
+                if hasattr(ht, 'price_per_hour'):
+                    rec.price_per_hour = ht.price_per_hour or 0.0
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Also set defaults on programmatic create (onchange only runs in the UI)."""
+        HallType = self.env['hotel.event.hall.type'].sudo()
+        for vals in vals_list:
+            ht_id = vals.get('hall_type_id')
+            if ht_id:
+                ht = HallType.browse(ht_id)
+                # Only set if creator didn't specify a custom value
+                if 'capacity' not in vals and hasattr(ht, 'capacity'):
+                    vals['capacity'] = ht.capacity or 0
+                # Set price only if not provided
+                if ('price_per_hour' not in vals or not vals.get('price_per_hour')) and hasattr(ht, 'price_per_hour'):
+                    vals['price_per_hour'] = ht.price_per_hour or 0.0
+        return super().create(vals_list)
+
+    def write(self, vals):
+        """If the hall type changes later, prefill missing capacity/price from the new type.
+        Do not overwrite fields explicitly set in this write."""
+        res = super().write(vals)
+        if 'hall_type_id' in vals:
+            for rec in self:
+                ht = rec.hall_type_id
+                if not ht:
+                    continue
+                updates = {}
+                if 'capacity' not in vals and hasattr(ht, 'capacity'):
+                    updates['capacity'] = ht.capacity or 0
+                if 'price_per_hour' not in vals and hasattr(ht, 'price_per_hour'):
+                    updates['price_per_hour'] = ht.price_per_hour or 0.0
+                if updates:
+                    super(HotelEventHall, rec).write(updates)
+        return res
+

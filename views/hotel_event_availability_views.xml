@@ -37,11 +37,5 @@
     <field name="target">new</field>
   </record>
 
-  <!-- Menu item -->
-  <menuitem id="menu_hotel_event_availability"
-            name="Event Hall Availability"
-            parent="menu_hotel_root"
-            action="action_hotel_event_availability_wizard"
-            sequence="65"
-            groups="custom_hotel_management.group_hotel_user"/>
+
 </odoo>
