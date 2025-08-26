@@ -1,4 +1,4 @@
-from odoo import models,fields
+from odoo import models,fields,api
 
 class HotelRoomType(models.Model):
     _name = 'hotel.room.type'
@@ -66,4 +66,52 @@ class HotelRoom (models.Model):
     )
 
     
- 
+class HotelRoom(models.Model):
+    _inherit = 'hotel.room'
+
+    capacity = fields.Integer(string='Capacity')
+    @api.onchange('room_type_id')
+    def _onchange_room_type_id_autofill(self):
+        """When a room type is chosen, prefill capacity & price from the type.
+        Staff can still override after this onchange."""
+        for rec in self:
+            rt = rec.room_type_id
+            if rt:
+                # copy defaults from type
+                if hasattr(rt, 'capacity'):
+                    rec.capacity = rt.capacity or 0
+                if hasattr(rt, 'default_price'):
+                    rec.price = rt.default_price or 0.0
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Also enforce defaults when records are created programmatically (imports, RPC)
+        (onchange only runs in the UI)."""
+        RoomType = self.env['hotel.room.type'].sudo()
+        for vals in vals_list:
+            rt_id = vals.get('room_type_id')
+            if rt_id:
+                rt = RoomType.browse(rt_id)
+                # Only set if the creator didn't specify a custom value
+                if 'capacity' not in vals and hasattr(rt, 'capacity'):
+                    vals['capacity'] = rt.capacity or 0
+                if ('price' not in vals or vals.get('price') in (None, False)) and hasattr(rt, 'default_price'):
+                    vals['price'] = rt.default_price or 0.0
+        return super().create(vals_list)
+
+    def write(self, vals):
+        """If the room type changes later, prefill missing capacity/price from the new type."""
+        res = super().write(vals)
+        if 'room_type_id' in vals:
+            for rec in self:
+                rt = rec.room_type_id
+                if not rt:
+                    continue
+                updates = {}
+                if 'capacity' not in vals and hasattr(rt, 'capacity'):
+                    updates['capacity'] = rt.capacity or 0
+                if 'price' not in vals and hasattr(rt, 'default_price'):
+                    updates['price'] = rt.default_price or 0.0
+                if updates:
+                    super(HotelRoom, rec).write(updates)
+        return res

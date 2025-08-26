@@ -111,6 +111,7 @@
           </group>
           <group>
             <field name="price"/>
+            <field name="capacity"/> 
             <field name="currency_id"/>
           </group>
           <group>
