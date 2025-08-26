@@ -1,5 +1,5 @@
-from odoo import models, fields
-
+from odoo import models, fields,api
+from datetime import timedelta
 class HotelHousekeepingTask(models.Model):
     _name = 'hotel.housekeeping.task'
     _description = 'Housekeeping Task'
@@ -41,3 +41,20 @@ class HotelHousekeepingTask(models.Model):
         index=True
     )
     date_scheduled = fields.Datetime(index=True)
+class HotelHousekeepingTaskProgress(models.Model):
+    _inherit = 'hotel.housekeeping.task'
+
+    def write(self, vals):
+        res = super().write(vals)
+        if 'status' in vals:
+            for t in self:
+                room = t.room_id.sudo()
+                if not room:
+                    continue
+                if vals['status'] == 'in_progress':
+                    # Crew is in, mark room as cleaning
+                    room.write({'status': 'cleaning'})
+                elif vals['status'] == 'done':
+                    # All set — flip to available
+                    room.write({'status': 'available'})
+        return res

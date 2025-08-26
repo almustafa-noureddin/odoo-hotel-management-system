@@ -128,6 +128,72 @@ class HotelReservation(models.Model):
                     self._set_room_status(rec.room_id, 'available')
         return res
 
+class HotelReservationHousekeeping(models.Model):
+    _inherit = 'hotel.reservation'
+
+    def _create_cleaning_task_for_room(self, room, when=None):
+        """Ensure exactly one open cleaning task exists for this room at/after checkout."""
+        Task = self.env['hotel.housekeeping.task'].sudo()
+        when = when or fields.Datetime.now()
+        existing = Task.search([
+            ('room_id', '=', room.id),
+            ('status', 'in', ['pending', 'in_progress']),
+            ('date_scheduled', '>=', when),
+        ], limit=1)
+        if existing:
+            return existing
+        return Task.create({
+            'room_id': room.id,
+            'task_type': 'cleaning',
+            'status': 'pending',
+            'date_scheduled': when,
+        })
+
+    def write(self, vals):
+        res = super().write(vals)
+        # When a reservation is checked out, mark the room dirty and queue housekeeping.
+        if 'status' in vals and vals['status'] == 'checked_out':
+            for rec in self:
+                room = rec.room_id.sudo()
+                if not room:
+                    continue
+                # Set room dirty 
+                if room.status != 'cleaning':  # don't override if crew already started
+                    room.write({'status': 'dirty'})
+                # Create cleaning task scheduled at checkout time (or now)
+                rec._create_cleaning_task_for_room(room, rec.check_out or fields.Datetime.now())
+        return res
+
+    @api.model
+    def cron_generate_housekeeping_tasks(self):
+        """Backstop: periodically ensure checked-out rooms have a cleaning task."""
+        now = fields.Datetime.now()
+        cutoff = now - timedelta(days=2)
+        to_process = self.sudo().search([
+            ('status', '=', 'checked_out'),
+            ('check_out', '>=', cutoff),
+            ('room_id', '!=', False),
+        ])
+        Task = self.env['hotel.housekeeping.task'].sudo()
+        for r in to_process:
+            room = r.room_id
+            if not room:
+                continue
+            has_open = Task.search([
+                ('room_id', '=', room.id),
+                ('status', 'in', ['pending', 'in_progress']),
+                ('date_scheduled', '>=', r.check_out or cutoff),
+            ], limit=1)
+            if not has_open:
+                Task.create({
+                    'room_id': room.id,
+                    'task_type': 'cleaning',
+                    'status': 'pending',
+                    'date_scheduled': r.check_out or now,
+                })
+                # Keep/mark dirty until housekeeping starts
+                if room.status != 'cleaning':
+                    room.status = 'dirty'
 
 # create the reverse FK on account.move
 class AccountMove(models.Model):

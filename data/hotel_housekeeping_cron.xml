@@ -1,0 +1,11 @@
+<odoo>
+  <record id="ir_cron_housekeeping_generate_tasks" model="ir.cron">
+    <field name="name">Housekeeping: Auto-generate cleaning tasks</field>
+    <field name="model_id" ref="model_hotel_reservation"/>
+    <field name="state">code</field>
+    <field name="code">model.cron_generate_housekeeping_tasks()</field>
+    <field name="interval_number">1</field>
+    <field name="interval_type">hours</field>
+    <field name="active">True</field>
+  </record>
+</odoo>

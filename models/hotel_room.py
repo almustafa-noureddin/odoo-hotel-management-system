@@ -47,6 +47,7 @@ class HotelRoom (models.Model):
         selection=[('available', 'Available'), 
             ('occupied', 'Occupied'), 
             ('dirty','Dirty'), 
+            ('cleaning', 'Cleaning'),
             ('maintenance','Maintenance')]
     )
     price= fields.Monetary(string='Price', currency_field='currency_id')

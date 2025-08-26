@@ -24,6 +24,7 @@
     "views/hotel_reservation_calendar_view.xml",
     "views/hotel_availability_views.xml",
     "views/hotel_housekeeping_views.xml",
+    "data/hotel_housekeeping_cron.xml",
     "views/hotel_event_views.xml",
     "views/hotel_event_booking_calendar_view.xml",
     "views/hotel_event_availability_views.xml",
