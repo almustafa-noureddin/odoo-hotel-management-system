@@ -6,7 +6,9 @@
     'author': 'Almustafa',
     'website': '',
     'license': 'LGPL-3',
-
+    'images': [
+        'static/description/icon.png',
+    ],
     'depends': [
         'base',
         'account',
