@@ -1,0 +1,12 @@
+<odoo>
+  <record id="ir_cron_maintenance_periodic_inspections" model="ir.cron">
+    <field name="name">Maintenance: Generate Periodic Inspections</field>
+    <field name="model_id" ref="model_hotel_maintenance_task"/>
+    <field name="state">code</field>
+    <field name="code">model.cron_generate_periodic_inspections()</field>
+    <field name="interval_number">1</field>
+    <field name="interval_type">days</field>
+    <field name="active">True</field>
+    <field name="priority">5</field>
+  </record>
+</odoo>

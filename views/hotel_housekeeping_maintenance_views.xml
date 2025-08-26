@@ -1,0 +1,19 @@
+<odoo>
+  <!-- Adjust inherit_id if your form view XML id differs -->
+  <record id="view_hk_task_form_inherit_report_maintenance" model="ir.ui.view">
+    <field name="name">hotel.housekeeping.task.form.inherit.report.maintenance</field>
+    <field name="model">hotel.housekeeping.task</field>
+    <field name="inherit_id" ref="view_hotel_housekeeping_task_form"/>
+    <field name="arch" type="xml">
+       <xpath expr="//form/sheet" position="before">
+        <header>
+          <button name="action_report_maintenance"
+                  type="object"
+                  string="Report Maintenance"
+                  class="btn-secondary"
+                  invisible="status != 'in_progress'"/>
+        </header>
+      </xpath>
+    </field>
+  </record>
+</odoo>

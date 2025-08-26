@@ -30,4 +30,10 @@
             action="action_hotel_event_availability_wizard"
             sequence="65"
             groups="custom_hotel_management.group_hotel_user"/>
+  <menuitem id="menu_hotel_maintenance"
+            name="Maintenance"
+            parent="menu_hotel_root"
+            action="action_hotel_maintenance_task"
+            sequence="40"
+            groups="custom_hotel_management.group_hotel_user"/>
 </odoo>
