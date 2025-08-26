@@ -21,6 +21,7 @@
     "data/sequences.xml",
     "views/hotel_room_views.xml",
     "views/hotel_reservation_views.xml",
+    "views/hotel_reservation_calendar_view.xml",
     "views/hotel_housekeeping_views.xml",
     "views/hotel_event_views.xml",
     "views/res_partner_views.xml",

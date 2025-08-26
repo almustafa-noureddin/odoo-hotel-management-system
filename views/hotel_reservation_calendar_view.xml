@@ -1,0 +1,25 @@
+<odoo>
+  <!-- Calendar view for reservations -->
+  <record id="view_hotel_reservation_calendar" model="ir.ui.view">
+    <field name="name">hotel.reservation.calendar</field>
+    <field name="model">hotel.reservation</field>
+    <field name="arch" type="xml">
+      <calendar string="Reservations Calendar"
+                date_start="check_in"
+                date_stop="check_out"
+                color="room_id"
+                event_open_popup="true">
+        <field name="name"/>
+        <field name="guest_id"/>
+        <field name="room_id"/>
+        <field name="company_id"/>
+        <field name="status"/>
+      </calendar>
+    </field>
+  </record>
+
+  <!-- Extend existing action to include calendar -->
+  <record id="action_hotel_reservation" model="ir.actions.act_window">
+    <field name="view_mode">calendar,list,form</field>
+  </record>
+</odoo>

@@ -5,7 +5,7 @@ class HotelRoomType(models.Model):
     _description = 'hotel room type'
     _order = 'name'
 
-    name = fields.Char(string="Room Type)",required=True, index=True)
+    name = fields.Char(string="Room Type",required=True, index=True)
     description = fields.Char(string="Room type description")
     capacity = fields.Integer(string="Capacity",default=1)
     default_price = fields.Monetary(string="Base price", currency_field='currency_id')
