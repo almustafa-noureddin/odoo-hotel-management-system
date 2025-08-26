@@ -1,0 +1,44 @@
+<odoo>
+  <!-- Wizard form -->
+  <record id="view_hotel_availability_wizard" model="ir.ui.view">
+    <field name="name">hotel.availability.wizard.form</field>
+    <field name="model">hotel.availability.wizard</field>
+    <field name="arch" type="xml">
+      <form string="Search Available Rooms">
+        <group>
+          <field name="company_id"/>
+          <field name="date_start"/>
+          <field name="date_end"/>
+          <field name="room_type_id"/>
+          <field name="capacity_min"/>
+          <field name="amenity_ids" widget="many2many_tags"/>
+          <field name="max_price"/>
+        </group>
+        <group>
+          <field name="result_room_ids" widget="many2many_tags" readonly="1"/>
+        </group>
+        <footer>
+          <button name="action_open_results" string="Open Results" type="object" class="btn-primary"/>
+          <button name="action_create_reservation" string="Create Reservation" type="object" class="btn-secondary"/>
+          <button string="Close" class="btn-link" special="cancel"/>
+        </footer>
+      </form>
+    </field>
+  </record>
+
+  <!-- Server action to open wizard -->
+  <record id="action_hotel_availability_wizard" model="ir.actions.act_window">
+    <field name="name">Search Availability</field>
+    <field name="res_model">hotel.availability.wizard</field>
+    <field name="view_mode">form</field>
+    <field name="target">new</field>
+  </record>
+
+  <!-- Menu item under Hotel -->
+  <menuitem id="menu_hotel_availability"
+            name="Availability"
+            parent="menu_hotel_root"
+            action="action_hotel_availability_wizard"
+            sequence="25"
+            groups="custom_hotel_management.group_hotel_user"/>
+</odoo>
