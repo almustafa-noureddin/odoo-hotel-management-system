@@ -31,8 +31,8 @@ class HotelRoom (models.Model):
     _order = 'name'
     _check_company_auto = True  
 
-    name =fields.Char(string="Room number or code",required=True, index=True)
-    room_type_id= fields.Many2one('hotel.room.type', string="Room Type")
+    name =fields.Char(string="Room number or code",required=True, index=True, tracking=True)
+    room_type_id= fields.Many2one('hotel.room.type', string="Room Type", tracking=True)
     company_id = fields.Many2one(
         comodel_name='res.company',
         string="Branch",
@@ -48,9 +48,10 @@ class HotelRoom (models.Model):
             ('occupied', 'Occupied'), 
             ('dirty','Dirty'), 
             ('cleaning', 'Cleaning'),
-            ('maintenance','Maintenance')]
+            ('maintenance','Maintenance')], 
+            tracking=True
     )
-    price= fields.Monetary(string='Price', currency_field='currency_id')
+    price= fields.Monetary(string='Price', currency_field='currency_id', tracking=True)
     
     amenities_ids = fields.Many2many(
         string='Amenities',

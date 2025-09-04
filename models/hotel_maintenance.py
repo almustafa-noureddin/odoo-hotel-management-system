@@ -4,33 +4,34 @@ from datetime import timedelta
 class HotelMaintenanceTask(models.Model):
     _name = 'hotel.maintenance.task'
     _description = 'Room Maintenance Task'
+    _inherit = ['mail.thread', 'mail.activity.mixin'] 
     _order = 'priority desc, date_scheduled asc, id desc'
 
-    name = fields.Char(string='Title', required=True, default='Maintenance Task')
-    room_id = fields.Many2one('hotel.room', string='Room', required=True, ondelete='cascade')
+    name = fields.Char(string='Title', required=True, default='Maintenance Task', tracking=True)
+    room_id = fields.Many2one('hotel.room', string='Room', required=True, ondelete='cascade', tracking=True)
     company_id = fields.Many2one('res.company', string='Branch', related='room_id.company_id', store=True, readonly=True)
     task_type = fields.Selection([
         ('inspection', 'Inspection'),
         ('repair', 'Repair'),
-    ], string='Type', required=True, default='inspection')
+    ], string='Type', required=True, default='inspection', tracking=True)
     source = fields.Selection([
         ('inspection', 'Scheduled Inspection'),
         ('housekeeping', 'Housekeeping Report'),
         ('manual', 'Manual'),
-    ], string='Source', required=True, default='manual')
+    ], string='Source', required=True, default='manual', tracking=True)
     status = fields.Selection([
         ('pending', 'Pending'),
         ('in_progress', 'In Progress'),
         ('done', 'Done'),
         ('cancelled', 'Cancelled'),
     ], string='Status', default='pending', tracking=True)
-    date_reported = fields.Datetime(string='Reported On', default=fields.Datetime.now)
-    date_scheduled = fields.Datetime(string='Scheduled For')
-    duration_hours = fields.Float(string='Expected Duration (hours)', default=1.0)
-    assigned_user_id = fields.Many2one('res.users', string='Assigned To')
-    priority = fields.Selection([('0','Low'),('1','Normal'),('2','High'),('3','Urgent')], default='1')
-    description = fields.Text()
-    housekeeping_task_id = fields.Many2one('hotel.housekeeping.task', string='From Housekeeping Task', ondelete='set null')
+    date_reported = fields.Datetime(string='Reported On', default=fields.Datetime.now, tracking=True)
+    date_scheduled = fields.Datetime(string='Scheduled For', tracking=True)
+    duration_hours = fields.Float(string='Expected Duration (hours)', default=1.0, tracking=True)
+    assigned_user_id = fields.Many2one('res.users', string='Assigned To', tracking=True)
+    priority = fields.Selection([('0','Low'),('1','Normal'),('2','High'),('3','Urgent')],string="Priority", default='1', tracking=True)
+    description = fields.Text(string="Description", tracking=True)
+    housekeeping_task_id = fields.Many2one('hotel.housekeeping.task', string='From Housekeeping Task', ondelete='set null', tracking=True)
 
     def name_get(self):
         res = []

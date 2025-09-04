@@ -3,13 +3,15 @@ from datetime import timedelta
 class HotelHousekeepingTask(models.Model):
     _name = 'hotel.housekeeping.task'
     _description = 'Housekeeping Task'
+    _inherit = ['mail.thread', 'mail.activity.mixin'] 
     _order = 'date_scheduled, id'
 
     room_id = fields.Many2one(
         string='Room ID',
         comodel_name='hotel.room', 
         required=True, 
-        ondelete='cascade'
+        ondelete='cascade', 
+        tracking=True
         )
     company_id = fields.Many2one(
         'res.company', 
@@ -21,6 +23,7 @@ class HotelHousekeepingTask(models.Model):
     assigned_to = fields.Many2one(
         string='Assigned To',
         comodel_name='res.users', 
+        tracking=True
         )
     task_type = fields.Selection(
         string='Task Type',
@@ -29,7 +32,8 @@ class HotelHousekeepingTask(models.Model):
          ('inspection', 'Inspection')],
         required=True,
         default='cleaning',
-        index=True
+        index=True, 
+        tracking=True
     )
     status = fields.Selection(
         string='Status',
@@ -38,9 +42,10 @@ class HotelHousekeepingTask(models.Model):
          ('done', 'Done')],
         default='pending',
         required=True,
-        index=True
+        index=True, 
+        tracking=True
     )
-    date_scheduled = fields.Datetime(index=True)
+    date_scheduled = fields.Datetime(string='Date Scheduled',index=True, tracking=True)
 class HotelHousekeepingTaskProgress(models.Model):
     _inherit = 'hotel.housekeeping.task'
 

@@ -4,21 +4,24 @@ from odoo.exceptions import ValidationError
 class HotelReservation(models.Model):
     _name = 'hotel.reservation'
     _description = 'Hotel Reservation'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'check_in desc, id desc'
     _check_company_auto = True
 
-    name = fields.Char(string="Reference", copy=False, readonly=True, default="/")
+    name = fields.Char(string="Reference", copy=False, readonly=True, default="/", tracking=True)
     guest_id = fields.Many2one(
         string='Guest ID',
         comodel_name='res.partner',
         required=True, 
-        ondelete='restrict'
+        ondelete='restrict', 
+        tracking=True
         )
     room_id = fields.Many2one(
         string="Room ID",
         comodel_name='hotel.room',
         required=True, 
-        ondelete='restrict'
+        ondelete='restrict', 
+        tracking=True
         )
     company_id = fields.Many2one(
         string="Branch",
@@ -28,8 +31,8 @@ class HotelReservation(models.Model):
     )
     
 
-    check_in = fields.Datetime(string="Check In",required=True, index=True)
-    check_out = fields.Datetime(string="Check Out",required=True, index=True)
+    check_in = fields.Datetime(string="Check In",required=True, index=True, tracking=True)
+    check_out = fields.Datetime(string="Check Out",required=True, index=True, tracking=True)
 
     booking_source = fields.Selection(
         string='Booking Source',
@@ -40,7 +43,8 @@ class HotelReservation(models.Model):
          ('travel_agent', 'Travel Agent')],
         default='website',
         required=True,
-        index=True
+        index=True, 
+        tracking=True
     )
     rate_type = fields.Selection(
         string='Rate Type',
@@ -49,11 +53,12 @@ class HotelReservation(models.Model):
          ('corporate', 'Corporate')],
         default='standard',
         required=True,
-        index=True
+        index=True, 
+        tracking=True
     )
 
-    deposit_amount = fields.Monetary(string='Deposit Amount', currency_field='currency_id')
-    total_amount = fields.Monetary(string='Total Amount', currency_field='currency_id')
+    deposit_amount = fields.Monetary(string='Deposit Amount', currency_field='currency_id', tracking=True)
+    total_amount = fields.Monetary(string='Total Amount', currency_field='currency_id', tracking=True)
     payment_status = fields.Selection(
         string='Payment Status',
         selection=[('unpaid', 'Unpaid'),
@@ -61,7 +66,8 @@ class HotelReservation(models.Model):
          ('paid', 'Paid')],
         default='unpaid',
         required=True,
-        index=True
+        index=True, 
+        tracking=True
     )
 
     status = fields.Selection(
@@ -73,7 +79,8 @@ class HotelReservation(models.Model):
          ('cancelled', 'Cancelled')],
         default='draft',
         required=True,
-        index=True
+        index=True, 
+        tracking=True
     )
     currency_id = fields.Many2one(
         'res.currency',

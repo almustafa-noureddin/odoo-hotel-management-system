@@ -180,6 +180,9 @@
         <field name="deposit_amount"/>
         <field name="total_amount"/>
         <field name="status"/>
+        <field name="activity_state" widget="activity_state" optional="show"/>
+        <field name="activity_ids" invisible="1"/>
+
       </list>
     </field>
   </record>
@@ -213,9 +216,56 @@
             <field name="status"/>
           </group>
         </sheet>
+          <chatter>
+            <field name="message_follower_ids" widget="mail_followers"/>
+            <field name="activity_ids" widget="mail_activity"/>
+           <field name="message_ids" widget="mail_thread"/>
+          </chatter>
       </form>
     </field>
   </record>
+
+<record id="view_hotel_event_booking_search" model="ir.ui.view">
+  <field name="name">hotel.event.booking.search</field>
+  <field name="model">hotel.event.booking</field>
+  <field name="arch" type="xml">
+    <search string="Search Event Bookings">
+      <!-- searchable fields -->
+      <field name="customer_id"/>
+      <field name="hall_id"/>
+      <field name="company_id"/>
+      <field name="event_date"/>
+
+      <!-- status filters -->
+      <filter name="st_draft" string="Draft" domain="[('status','=','draft')]"/>
+      <filter name="st_confirmed" string="Confirmed" domain="[('status','=','confirmed')]"/>
+      <filter name="st_done" string="Done" domain="[('status','=','done')]"/>
+      <filter name="st_cancelled" string="Cancelled" domain="[('status','=','cancelled')]"/>
+      <separator/>
+
+      <!-- package or amounts -->
+      <filter name="has_package" string="With Package" domain="[('package_id','!=',False)]"/>
+      <separator/>
+
+      <!-- activities -->
+      <filter name="my_activities" string="My Activities" domain="[('activity_user_id','=',uid)]"/>
+      <separator/>
+      <filter name="act_overdue" string="Overdue" domain="[('activity_state','=','overdue')]"/>
+      <filter name="act_today" string="Today" domain="[('activity_state','=','today')]"/>
+      <filter name="act_planned" string="Planned" domain="[('activity_state','=','planned')]"/>
+
+      <!-- group by -->
+      <group expand="0" string="Group By">
+        <filter name="grp_customer" string="Customer" context="{'group_by':'customer_id'}"/>
+        <filter name="grp_hall" string="Hall" context="{'group_by':'hall_id'}"/>
+        <filter name="grp_company" string="Branch" context="{'group_by':'company_id'}"/>
+        <filter name="grp_status" string="Status" context="{'group_by':'status'}"/>
+        <filter name="grp_date" string="Event Date" context="{'group_by':'event_date'}"/>
+        <filter name="grp_package" string="Package" context="{'group_by':'package_id'}"/>
+      </group>
+    </search>
+  </field>
+</record>
 
   <record id="action_hotel_event_booking" model="ir.actions.act_window">
     <field name="name">Event Bookings</field>

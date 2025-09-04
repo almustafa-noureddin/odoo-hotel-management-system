@@ -16,6 +16,8 @@
         <field name="payment_status"/>
         <field name="status"/>
         <field name="total_amount"/>
+        <field name="activity_state" widget="activity_state" optional="show"/>
+        <field name="activity_ids" invisible="1"/>
       </list>
     </field>
   </record>
@@ -64,9 +66,74 @@
             </page>
           </notebook>
         </sheet>
+          <chatter>
+            <field name="message_follower_ids" widget="mail_followers"/>
+            <field name="activity_ids" widget="mail_activity"/>
+           <field name="message_ids" widget="mail_thread"/>
+          </chatter>
       </form>
     </field>
   </record>
+
+<record id="view_hotel_reservation_search" model="ir.ui.view">
+  <field name="name">hotel.reservation.search</field>
+  <field name="model">hotel.reservation</field>
+  <field name="arch" type="xml">
+    <search string="Search Reservations">
+      <!-- searchable fields -->
+      <field name="guest_id"/>
+      <field name="room_id"/>
+      <field name="company_id"/>
+      <field name="check_in"/>
+      <field name="check_out"/>
+
+      <!-- status filters -->
+      <filter name="st_draft" string="Draft" domain="[('status','=','draft')]"/>
+      <filter name="st_confirmed" string="Confirmed" domain="[('status','=','confirmed')]"/>
+      <filter name="st_checked_in" string="Checked In" domain="[('status','=','checked_in')]"/>
+      <filter name="st_checked_out" string="Checked Out" domain="[('status','=','checked_out')]"/>
+      <filter name="st_cancelled" string="Cancelled" domain="[('status','=','cancelled')]"/>
+      <separator/>
+
+      <!-- payment & pricing -->
+      <filter name="pay_unpaid" string="Unpaid" domain="[('payment_status','=','unpaid')]"/>
+      <filter name="pay_partial" string="Partial" domain="[('payment_status','=','partial')]"/>
+      <filter name="pay_paid" string="Paid" domain="[('payment_status','=','paid')]"/>
+      <separator/>
+
+      <!-- rate & source -->
+      <filter name="rate_standard" string="Standard" domain="[('rate_type','=','standard')]"/>
+      <filter name="rate_seasonal" string="Seasonal" domain="[('rate_type','=','seasonal')]"/>
+      <filter name="rate_corporate" string="Corporate" domain="[('rate_type','=','corporate')]"/>
+      <separator/>
+      <filter name="src_website" string="Website" domain="[('booking_source','=','website')]"/>
+      <filter name="src_ota" string="OTA" domain="[('booking_source','=','ota')]"/>
+      <filter name="src_phone" string="Phone" domain="[('booking_source','=','phone')]"/>
+      <filter name="src_walkin" string="Walk-in" domain="[('booking_source','=','walk_in')]"/>
+      <filter name="src_agent" string="Travel Agent" domain="[('booking_source','=','travel_agent')]"/>
+      <separator/>
+
+      <!-- activities -->
+      <filter name="my_activities" string="My Activities" domain="[('activity_user_id','=',uid)]"/>
+      <separator/>
+      <filter name="act_overdue" string="Overdue" domain="[('activity_state','=','overdue')]"/>
+      <filter name="act_today" string="Today" domain="[('activity_state','=','today')]"/>
+      <filter name="act_planned" string="Planned" domain="[('activity_state','=','planned')]"/>
+
+      <!-- group by -->
+      <group expand="0" string="Group By">
+        <filter name="grp_guest" string="Guest" context="{'group_by':'guest_id'}"/>
+        <filter name="grp_room" string="Room" context="{'group_by':'room_id'}"/>
+        <filter name="grp_company" string="Branch" context="{'group_by':'company_id'}"/>
+        <filter name="grp_status" string="Status" context="{'group_by':'status'}"/>
+        <filter name="grp_payment" string="Payment Status" context="{'group_by':'payment_status'}"/>
+        <filter name="grp_rate" string="Rate Type" context="{'group_by':'rate_type'}"/>
+        <filter name="grp_source" string="Booking Source" context="{'group_by':'booking_source'}"/>
+        <filter name="grp_checkin" string="Check-in" context="{'group_by':'check_in'}"/>
+      </group>
+    </search>
+  </field>
+</record>
 
   <record id="action_hotel_reservation" model="ir.actions.act_window">
     <field name="name">Reservations</field>

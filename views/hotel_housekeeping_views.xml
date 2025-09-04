@@ -10,6 +10,8 @@
         <field name="task_type"/>
         <field name="status"/>
         <field name="date_scheduled"/>
+        <field name="activity_state" widget="activity_state" optional="show"/>
+        <field name="activity_ids" invisible="1"/>
       </list>
     </field>
   </record>
@@ -31,9 +33,55 @@
           </group>
          
         </sheet>
+          <chatter>
+            <field name="message_follower_ids" widget="mail_followers"/>
+            <field name="activity_ids" widget="mail_activity"/>
+           <field name="message_ids" widget="mail_thread"/>
+          </chatter>
       </form>
     </field>
   </record>
+
+<record id="view_hotel_housekeeping_task_search" model="ir.ui.view">
+  <field name="name">hotel.housekeeping.task.search</field>
+  <field name="model">hotel.housekeeping.task</field>
+  <field name="arch" type="xml">
+    <search string="Search Housekeeping">
+      <!-- free text / fields -->
+      <field name="room_id"/>
+      <field name="assigned_to"/>
+      <field name="date_scheduled"/>
+
+      <!-- status filters -->
+      <filter name="status_pending" string="Pending" domain="[('status','=','pending')]"/>
+      <filter name="status_in_progress" string="In Progress" domain="[('status','=','in_progress')]"/>
+      <filter name="status_done" string="Done" domain="[('status','=','done')]"/>
+      <separator/>
+
+      <!-- type filters -->
+      <filter name="type_cleaning" string="Cleaning" domain="[('task_type','=','cleaning')]"/>
+      <filter name="type_maintenance" string="Maintenance" domain="[('task_type','=','maintenance')]"/>
+      <filter name="type_inspection" string="Inspection" domain="[('task_type','=','inspection')]"/>
+      <separator/>
+
+      <!-- activities -->
+      <filter name="my_activities" string="My Activities" domain="[('activity_user_id','=',uid)]"/>
+      <separator/>
+      <filter name="act_overdue" string="Overdue" domain="[('activity_state','=','overdue')]"/>
+      <filter name="act_today" string="Today" domain="[('activity_state','=','today')]"/>
+      <filter name="act_planned" string="Planned" domain="[('activity_state','=','planned')]"/>
+
+      <!-- group by -->
+      <group expand="0" string="Group By">
+        <filter name="grp_room" string="Room" context="{'group_by':'room_id'}"/>
+        <filter name="grp_status" string="Status" context="{'group_by':'status'}"/>
+        <filter name="grp_type" string="Type" context="{'group_by':'task_type'}"/>
+        <filter name="grp_assigned" string="Assigned To" context="{'group_by':'assigned_to'}"/>
+        <filter name="grp_date" string="Scheduled Date" context="{'group_by':'date_scheduled'}"/>
+      </group>
+    </search>
+  </field>
+</record>
 
   <record id="action_hotel_housekeeping_task" model="ir.actions.act_window">
     <field name="name">Housekeeping Tasks</field>

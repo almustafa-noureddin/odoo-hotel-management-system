@@ -30,7 +30,7 @@ class HotelEventHall(models.Model):
     _order = 'name'
     _check_company_auto = True  
 
-    name = fields.Char(string="Hall Name or Number",required=True, index=True)
+    name = fields.Char(string="Hall Name or Number",required=True, index=True, tracking=True)
     company_id = fields.Many2one(
         comodel_name='res.company',
         string="Branch",
@@ -44,11 +44,12 @@ class HotelEventHall(models.Model):
         string='Hall Type',
         comodel_name='hotel.event.hall.type',
         required=True,
-        ondelete='restrict'
+        ondelete='restrict', 
+        tracking=True
     )
     
-    capacity = fields.Integer(string="Capacity")
-    price_per_hour = fields.Monetary(string="Price Per Hour", currency_field='currency_id')
+    capacity = fields.Integer(string="Capacity", tracking=True)
+    price_per_hour = fields.Monetary(string="Price Per Hour", currency_field='currency_id', tracking=True)
     amenities_ids = fields.Many2many(
         string="Amenities",
         comodel_name='hotel.event.amenity',
@@ -86,15 +87,17 @@ class HotelEventPackage(models.Model):
 class HotelEventBooking(models.Model):
     _name = 'hotel.event.booking'
     _description = 'Event Booking'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'event_date desc, id desc'
 
-    name = fields.Char(string="Reference", copy=False, readonly=True, default="/")
+    name = fields.Char(string="Reference", copy=False, readonly=True, default="/", tracking=True)
 
     hall_id = fields.Many2one(
         string="Hall",
         comodel_name='hotel.event.hall', 
         required=True, 
-        ondelete='restrict'
+        ondelete='restrict', 
+        tracking=True
         )
     company_id = fields.Many2one(
         string="Branch",
@@ -106,18 +109,20 @@ class HotelEventBooking(models.Model):
         string="Customer",
         comodel_name='res.partner', 
         required=True, 
-        ondelete='restrict'
+        ondelete='restrict', 
+        tracking=True
         )
-    event_date = fields.Datetime(string='Event Date',required=True, index=True)
-    duration_hours = fields.Float(string='Event Duration in Hours',required=True)
+    event_date = fields.Datetime(string='Event Date',required=True, index=True, tracking=True)
+    duration_hours = fields.Float(string='Event Duration in Hours',required=True, tracking=True)
 
     package_id = fields.Many2one(
         string="Event Package",
         comodel_name='hotel.event.package', 
-        ondelete='set null'
+        ondelete='set null', 
+        tracking=True
         )
-    deposit_amount = fields.Monetary(string='Deposit Amount', currency_field='currency_id')
-    total_amount = fields.Monetary(string='Total Amount', currency_field='currency_id')
+    deposit_amount = fields.Monetary(string='Deposit Amount', currency_field='currency_id', tracking=True)
+    total_amount = fields.Monetary(string='Total Amount', currency_field='currency_id', tracking=True)
 
     status = fields.Selection(
         string='Status',
@@ -126,7 +131,8 @@ class HotelEventBooking(models.Model):
          ('cancelled', 'Cancelled')],
         default='draft',
         required=True,
-        index=True
+        index=True, 
+        tracking=True
     )
     currency_id = fields.Many2one(
         'res.currency',
