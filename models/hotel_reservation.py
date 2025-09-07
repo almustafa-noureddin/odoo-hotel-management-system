@@ -1,5 +1,5 @@
 from odoo import models, fields, api
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 
 class HotelReservation(models.Model):
     _name = 'hotel.reservation'
@@ -58,7 +58,7 @@ class HotelReservation(models.Model):
     )
 
     deposit_amount = fields.Monetary(string='Deposit Amount', currency_field='currency_id', tracking=True)
-    total_amount = fields.Monetary(string='Total Amount', currency_field='currency_id', tracking=True)
+    total_amount = fields.Monetary(string='Amount Per Night', currency_field='currency_id', tracking=True)
     payment_status = fields.Selection(
         string='Payment Status',
         selection=[('unpaid', 'Unpaid'),
@@ -206,3 +206,103 @@ class HotelReservationHousekeeping(models.Model):
 class AccountMove(models.Model):
     _inherit = 'account.move'
     hotel_reservation_id = fields.Many2one('hotel.reservation', ondelete='set null')
+
+class HotelReservation(models.Model):
+    _inherit = 'hotel.reservation'
+
+    invoice_count = fields.Integer(compute='_compute_invoice_count', string='Invoice Count')
+
+    def _compute_invoice_count(self):
+        for rec in self:
+            rec.invoice_count = self.env['account.move'].sudo().search_count([
+                ('hotel_reservation_id', '=', rec.id),
+                ('move_type', 'in', ['out_invoice', 'out_refund']),
+            ])
+
+    def action_view_invoices(self):
+        self.ensure_one()
+        action = self.env.ref('account.action_move_out_invoice_type').read()[0]
+        action['domain'] = [('hotel_reservation_id', '=', self.id)]
+        action['context'] = {
+            'default_move_type': 'out_invoice',
+            'default_partner_id': self.guest_id.id,
+            'default_hotel_reservation_id': self.id,
+            'search_default_unpaid': 1,
+        }
+        return action
+
+    def _get_sale_journal(self):
+        self.ensure_one()
+        journal = self.env['account.journal'].search([
+            ('type', '=', 'sale'),
+            ('company_id', '=', self.company_id.id),
+            ('active', '=', True),
+        ], limit=1)
+        if not journal:
+            raise UserError("No Sales Journal found for company %s." % self.company_id.display_name)
+        return journal
+
+    def _reservation_invoice_lines(self):
+        """Builds invoice_line_ids triples for the reservation."""
+        self.ensure_one()
+        # Decide the price source. Prefer reservation.total_amount if set, else room.price.
+        unit_price = self.total_amount or self.room_id.price or 0.0
+        quantity = 1.0
+        # nights, compute from check-in/out
+        if self.check_in and self.check_out:
+            nights = max(1.0, (fields.Datetime.to_datetime(self.check_out) - fields.Datetime.to_datetime(self.check_in)).days or 1.0)
+            quantity = nights
+
+        # Try to pick a product. If you have a "Room Night" product, set its external ID and use it.
+        product = self.env['product.product'].search([('default_code', '=', 'ROOM_NIGHT')], limit=1) 
+
+        # Map taxes through fiscal position
+        partner = self.guest_id
+        taxes = product.taxes_id if product else self.env['account.tax']
+        taxes = taxes.filtered(lambda t: t.company_id == self.company_id)
+        if partner.property_account_position_id and taxes:
+            taxes = partner.property_account_position_id.map_tax(taxes)
+
+        line_vals = {
+            'name': product.display_name if product else (self.room_id.display_name or 'Room Charge'),
+            'quantity': quantity,
+            'price_unit': unit_price,
+            'product_id': product.id if product else False,
+            'tax_ids': [(6, 0, taxes.ids)] if taxes else False,
+        }
+        return [(0, 0, line_vals)]
+
+    def action_create_invoice(self):
+        self.ensure_one()
+        if not self.guest_id:
+            raise UserError("Reservation must have a Guest (Customer) before invoicing.")
+        if self.payment_status == 'paid':
+            raise UserError("This reservation is already marked Paid.")
+
+        journal = self._get_sale_journal()
+        move_vals = {
+            'move_type': 'out_invoice',
+            'partner_id': self.guest_id.id,
+            'invoice_date': fields.Date.context_today(self),
+            'invoice_origin': self.name,
+            'invoice_payment_term_id': self.guest_id.property_payment_term_id.id or False,
+            'journal_id': journal.id,
+            'currency_id': self.currency_id.id,
+            'invoice_line_ids': self._reservation_invoice_lines(),
+            'hotel_reservation_id': self.id,  # <-- this links it back to O2M
+            'invoice_user_id': self.env.user.id,
+            'company_id': self.company_id.id,
+        }
+        move = self.env['account.move'].create(move_vals)
+
+        # Post the invoice 
+        move.action_post()
+
+        return {
+            'name': 'Customer Invoice',
+            'type': 'ir.actions.act_window',
+            'res_model': 'account.move',
+            'view_mode': 'form',
+            'res_id': move.id,
+            'target': 'current',
+        }

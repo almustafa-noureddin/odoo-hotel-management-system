@@ -1,6 +1,6 @@
 from odoo import models, fields, api
 from datetime import timedelta
-
+from odoo.exceptions import UserError
 class HotelEventAmenity(models.Model):
     _name = 'hotel.event.amenity'
     _description = 'Event Hall Amenity'
@@ -222,3 +222,115 @@ class HotelEventHall(models.Model):
                     super(HotelEventHall, rec).write(updates)
         return res
 
+class HotelEventBooking(models.Model):
+    _inherit = 'hotel.event.booking'
+
+    # link to account.move
+    invoice_ids = fields.One2many('account.move', 'hotel_event_booking_id', string='Invoices')
+    invoice_count = fields.Integer(compute='_compute_invoice_count', string='Invoices')
+
+    def _compute_invoice_count(self):
+        for rec in self:
+            rec.invoice_count = self.env['account.move'].sudo().search_count([
+                ('hotel_event_booking_id', '=', rec.id),
+                ('move_type', 'in', ['out_invoice', 'out_refund']),
+            ])
+
+    def action_view_invoices(self):
+        self.ensure_one()
+        action = self.env.ref('account.action_move_out_invoice_type').read()[0]
+        action['domain'] = [('hotel_event_booking_id', '=', self.id)]
+        action['context'] = {
+            'default_move_type': 'out_invoice',
+            'default_partner_id': self.customer_id.id,
+            'default_hotel_event_booking_id': self.id,
+            'default_invoice_origin': self.name,
+            'search_default_unpaid': 1,
+        }
+        return action
+
+    def _get_sale_journal(self):
+        self.ensure_one()
+        journal = self.env['account.journal'].search([
+            ('type', '=', 'sale'),
+            ('company_id', '=', self.company_id.id),
+            ('active', '=', True),
+        ], limit=1)
+        if not journal:
+            raise UserError(f"No Sales Journal found for company {self.company_id.display_name}.")
+        return journal
+
+    def _event_invoice_lines(self):
+        """Build invoice lines:
+        Priority: explicit total_amount > package price > hall price_per_hour * hours
+        """
+        self.ensure_one()
+        # price logic
+        if self.total_amount:
+            unit_price = self.total_amount
+            qty = 1.0
+            label = f"Event Booking {self.name}"
+        elif self.package_id and self.package_id.price:
+            unit_price = self.package_id.price
+            qty = 1.0
+            label = f"Event Package: {self.package_id.display_name}"
+        else:
+            unit_price = (self.hall_id.price_per_hour or 0.0)
+            qty = max(self.duration_hours or 0.0, 1.0)
+            label = f"Hall {self.hall_id.display_name} — {qty:g} hour(s)"
+
+        # optional product (helps taxes/fiscal position)
+        product = self.env['product.product'].search([('default_code', '=', 'EVENT_BOOKING')], limit=1)
+        partner = self.customer_id
+        taxes = product.taxes_id if product else self.env['account.tax']
+        taxes = taxes.filtered(lambda t: t.company_id == self.company_id)
+        if partner.property_account_position_id and taxes:
+            taxes = partner.property_account_position_id.map_tax(taxes)
+
+        line_vals = {
+            'name': label,
+            'quantity': qty,
+            'price_unit': unit_price,
+            'product_id': product.id if product else False,
+            'tax_ids': [(6, 0, taxes.ids)] if taxes else False,
+        }
+        return [(0, 0, line_vals)]
+
+    def action_create_invoice(self):
+        self.ensure_one()
+        if not self.customer_id:
+            raise UserError("Set a Customer before invoicing.")
+        # block duplicates if a posted invoice already exists
+        exists = self.env['account.move'].search_count([
+            ('hotel_event_booking_id', '=', self.id),
+            ('move_type', '=', 'out_invoice'),
+            ('state', '=', 'posted'),
+        ])
+        if exists:
+            raise UserError("A posted invoice already exists for this event booking.")
+
+        move = self.env['account.move'].create({
+            'move_type': 'out_invoice',
+            'partner_id': self.customer_id.id,
+            'invoice_date': fields.Date.context_today(self),
+            'invoice_origin': self.name,
+            'journal_id': self._get_sale_journal().id,
+            'currency_id': self.currency_id.id,
+            'company_id': self.company_id.id,
+            'invoice_line_ids': self._event_invoice_lines(),
+            'hotel_event_booking_id': self.id,
+        })
+        move.action_post()
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'account.move',
+            'view_mode': 'form',
+            'res_id': move.id,
+        }
+    
+    
+
+
+class AccountMove(models.Model):
+    _inherit = 'account.move'
+    hotel_event_booking_id = fields.Many2one('hotel.event.booking', ondelete='set null')

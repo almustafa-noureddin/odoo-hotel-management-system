@@ -27,6 +27,24 @@
     <field name="model">hotel.reservation</field>
     <field name="arch" type="xml">
       <form>
+        <header>
+          <button name="action_create_invoice"
+                  type="object"
+                  string="Create Invoice"
+                  class="oe_highlight"
+                  invisible="status in ['cancelled'] or not guest_id"/>
+          <button name="action_view_invoices"
+                  type="object"
+                  string="Invoices"
+                  invisible="invoice_count == 0"/>
+        </header>
+
+        <div class="oe_button_box" name="button_box">
+          <button class="oe_stat_button" type="object" name="action_view_invoices"
+                  invisible="invoice_count == 0">
+            <field name="invoice_count" widget="statinfo" string="Invoices"/>
+          </button>
+        </div>
         <sheet>
           <group>
             <field name="guest_id" options="{'no_open': False}"/>
@@ -55,13 +73,18 @@
 
           <notebook>
             <page string="Invoices">
-              <field name="invoice_ids" readonly="1" context="{'default_invoice_origin': name}">
-                <list>
-                  <field name="name"/>
-                  <field name="state"/>
-                  <field name="amount_total"/>
-                  <field name="invoice_date"/>
-                </list>
+              
+              <field name="invoice_ids" readonly="1"
+                       context="{'default_move_type': 'out_invoice',
+                                 'default_partner_id': guest_id,
+                                 'default_hotel_reservation_id': id,
+                                 'default_invoice_origin': name}">
+                  <list>
+                    <field name="name"/>
+                    <field name="payment_state"/>
+                    <field name="amount_total"/>
+                    <field name="invoice_date"/>
+                  </list>
               </field>
             </page>
           </notebook>
